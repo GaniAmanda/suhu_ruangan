@@ -1,4 +1,5 @@
 <?php
+session_start();
 //include('dbconnected.php');
 include('koneksi.php');
 $id = $_POST['id'];
@@ -9,10 +10,10 @@ $kelembapan_pagi = $_POST['kelembapan_pagi'];
 $petugas_pagi = $_POST['petugas_pagi'];
 $suhu_sore = $_POST['suhu_sore'];
 $kelembapan_sore = $_POST['kelembapan_sore'];
-$petugas_sore = $_POST['petugas_sore'];
+$petugas_sore = $_SESSION['nama'];
 
 
-$query = mysqli_query($koneksi, "UPDATE suhu SET tanggal='$tanggal' ,ruangan='$ruangan',suhu_pagi='$suhu_pagi', kelembapan_pagi='$kelembapan_pagi', petugas_pagi='$petugas_pagi',suhu_sore='$suhu_sore', kelembapan_sore='$kelembapan_sore', petugas_sore='$petugas_sore' WHERE id='$id'");
+$query = mysqli_query($koneksi, "UPDATE suhu SET tanggal='$tanggal' ,ruangan='$ruangan',suhu_pagi='$suhu_pagi', kelembapan_pagi='$kelembapan_pagi',suhu_sore='$suhu_sore', kelembapan_sore='$kelembapan_sore', petugas_sore='$petugas_sore' WHERE id='$id'");
 if ($query) {
     # credirect ke page index
     header("location:data.php?update=sukses");

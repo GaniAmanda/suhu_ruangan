@@ -1,4 +1,7 @@
-<?php require 'koneksi.php'; ?>
+<?php 
+require './cek-sesi.php';
+require 'koneksi.php'; 
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -40,51 +43,52 @@
                     <div class="col-xxl-12">
                         <div class="card mb-4">
                             <div class="card-header">
-                                <a href="#" class="btn btn-primary btn-icon-split float-left shadow lift lift-sm" data-bs-toggle="modal" data-bs-target="#tambahModal">
-                                    <i class="fa fa-plus-circle"></i>&NonBreakingSpace;Tambah Data
-                                </a>
-                                &NonBreakingSpace;
                                 <a href="export-data.php" class="btn btn-success btn-icon-split shadow lift lift-sm">
                                     <i class="fa fa-download"></i>&NonBreakingSpace;Export to Excel
                                 </a>
                             </div>
                             <div class="card-body">
-                                <?php include 'alert.php' ?>
                                 <table id="datatablesSimple">
                                     <thead class="bg-primary text-white">
                                         <tr>
                                             <th>No</th>
                                             <th>Ruangan</th>
                                             <th>Tanggal</th>
-                                            <th>Suhu Pagi</th>
-                                            <th>Kelembaban Pagi</th>
-                                            <th>Petugas Pagi</th>
-                                            <th>Suhu Sore</th>
-                                            <th>Kelembaban Sore</th>
-                                            <th>Petugas Sore</th>
-                                            <th>Actions</th>
+                                            <th>Shift</th>
+                                            <th>Suhu</th>
+                                            <th>Kelembaban</th>
+                                            <th>Sensor</th>
+                                            <th>Last Update</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
                                         $no = 1;
                                         $query = mysqli_query($koneksi, "SELECT
-                                        suhu.id, 
+                                        ruangan.ruangan AS ruangan_nama, 
                                         suhu.ruangan, 
                                         suhu.tanggal, 
-                                        ruangan.ruangan AS ruangan_nama, 
-                                        suhu.suhu_pagi, 
-                                        suhu.kelembapan_pagi,
-                                        suhu.petugas_pagi,
-                                        suhu.suhu_sore, 
-                                        suhu.kelembapan_sore,
-                                        suhu.petugas_sore
+                                        suhu.suhu, 
+                                        suhu.kelembapan, 
+                                        suhu.modified_date, 
+                                        shift.shift, 
+                                        sensor.`name`
                                     FROM
                                         suhu
                                         INNER JOIN
                                         ruangan
                                         ON 
-                                            suhu.ruangan = ruangan.id_ruangan;");
+                                            suhu.ruangan = ruangan.id_ruangan
+                                        INNER JOIN
+                                        shift
+                                        ON 
+                                            suhu.shift = shift.id_shift
+                                        LEFT JOIN
+                                        sensor
+                                        ON 
+                                            suhu.sensor = sensor.id_sensor
+                                    WHERE
+                                        suhu.shift <> 0");
                                         while ($data = mysqli_fetch_assoc($query)) {
                                         ?>
                                             <tr>
@@ -98,123 +102,44 @@
                                                     <?= $data['tanggal'] ?>
                                                 </td>
                                                 <td>
-                                                    <?= $data['suhu_pagi'] ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['kelembapan_pagi'] ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['petugas_pagi'] ?>
+                                                    <?= $data['shift'] ?>
                                                 </td>
                                                 <?php
-                                                if ($data['suhu_sore'] == '' || ($data['kelembapan_sore'] == '') || ($data['petugas_sore'] == '')) {
+                                                if ($data['suhu'] == '' || ($data['kelembapan'] == '') || ($data['name'] == '')) {
                                                 ?>
                                                     <td class="bg-warning" style="--bs-bg-opacity: .5;">
-                                                        <?= $data['suhu_sore'] ?>
+                                                        <?= $data['suhu'] ?>
                                                     </td>
                                                     <td class="bg-warning" style="--bs-bg-opacity: .5;">
-                                                        <?= $data['kelembapan_sore'] ?>
+                                                        <?= $data['kelembapan'] ?>
                                                     </td>
                                                     <td class="bg-warning" style="--bs-bg-opacity: .5;">
-                                                        <?= $data['petugas_sore'] ?>
+                                                        <?= $data['name'] ?>
+                                                    </td">
+                                                    <td class="bg-warning" style="--bs-bg-opacity: .5;">
+                                                        <?= $data['modified_date'] ?>
                                                     </td>
-                                                <?php
+                                                    <?php
                                                 } else {
                                                 ?>
                                                     <td>
-                                                        <?= $data['suhu_sore'] ?>
+                                                        <?= $data['suhu'] ?>
                                                     </td>
                                                     <td>
-                                                        <?= $data['kelembapan_sore'] ?>
+                                                        <?= $data['kelembapan'] ?>
                                                     </td>
                                                     <td>
-                                                        <?= $data['petugas_sore'] ?>
+                                                        <?= $data['name'] ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= $data['modified_date'] ?>
                                                     </td>
                                                 <?php
                                                 }
+                                                $no+=1;
+                                            }
                                                 ?>
-                                                <td>
-                                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $data['id']; ?>"><i class="fa-regular fa-pen-to-square"></i></button>
-                                                    <button class="btn btn-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $data['id']; ?>"><i class="fa-solid fa-trash"></i></button></button>
-
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="deleteModal<?= $data['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header bg-primary">
-                                                                    <h5 class="modal-title text-white" id="exampleModalCenterTitle">Delete data suhu: <strong>
-                                                                            <?= $data['tanggal']; ?>
-                                                                        </strong> </h5>
-                                                                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body">Anda yakin?</div>
-                                                                <div class="modal-footer"><a class="btn btn-danger" href="delete_data.php?id=<?= $data['id']; ?>" type="button">Hapus</a><button class="btn btn-primary" type="button" data-bs-dismiss="modal">Close</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal fade" id="editModal<?php echo $data['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header bg-primary">
-                                                                    <h5 class="modal-title text-white">Edit data #
-                                                                        <?php echo $data['ruangan']; ?>
-                                                                    </h5>
-                                                                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <form action="./edit-data.php" method="POST" id="form<?php echo $data['id']; ?>">
-                                                                        <div class="mb-3"><label for="kode">ID</label><input class="form-control" id="id" type="id" name="id" value="<?php echo $data['id']; ?>" readonly="readonly"></div>
-                                                                        <div class="mb-3">
-                                                                            <label for="kualifikasi">Ruangan</label><select class="form-control" id="ruangan" name="ruangan">
-                                                                                <?php
-                                                                                $queri = mysqli_query($koneksi, "SELECT * FROM `ruangan`;");
-                                                                                while ($querynama = mysqli_fetch_array($queri)) {
-
-                                                                                    if ($querynama['id_ruangan'] == $data['ruangan']) {
-                                                                                        echo '<option value="' . $querynama['id_ruangan'] . '" selected>' . $querynama["ruangan"] . '</option>';
-                                                                                    } else {
-                                                                                        echo '<option value="' . $querynama['id_ruangan'] . '">' . $querynama["ruangan"] . '</option>';
-                                                                                    }
-                                                                                }
-                                                                                ?>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div class="mb-3"><label for="tanggal">Tanggal</label><input class="form-control" id="tanggal" name="tanggal" type="date" value="<?php echo $data['tanggal']; ?>" required></div>
-                                                                        <div class="row ${1| ,row-cols-2,row-cols-3, auto,justify-content-md-center,|}">
-                                                                            <div class="col">
-                                                                                <div class="mb-3"><label for="suhu_pagi">Suhu Pagi</label><input class="form-control" id="suhu_pagi" name="suhu_pagi" type="text" value="<?php echo $data['suhu_pagi']; ?>" required></div>
-                                                                            </div>
-                                                                            <div class="col">
-                                                                                <div class="mb-3"><label for="kelembapan_pagi">Kelembapan Pagi</label><input class="form-control" id="kelembapan_pagi" name="kelembapan_pagi" type="number" value="<?php echo $data['kelembapan_pagi']; ?>" required></div>
-                                                                            </div>
-                                                                            <div class="mb-3"><label for="petugas_pagi">Petugas Catat Pagi</label><input class="form-control" id="petugas_pagi" name="petugas_pagi" type="text" value="<?php echo $data['petugas_pagi']; ?>" required></div>
-                                                                        </div>
-                                                                        <div class="row ${1| ,row-cols-2,row-cols-3, auto,justify-content-md-center,|}">
-                                                                            <div class="col">
-                                                                                <div class="mb-3"><label for="suhu_sore">Suhu Sore</label><input class="form-control" id="suhu_sore" name="suhu_sore" type="text" value="<?php echo $data['suhu_sore']; ?>" required></div>
-                                                                            </div>
-                                                                            <div class="col">
-                                                                                <div class="mb-3"><label for="kelembapan_sore">Kelembapan Sore</label><input class="form-control" id="kelembapan_sore" name="kelembapan_sore" type="number" value="<?php echo $data['kelembapan_sore']; ?>" required></div>
-                                                                            </div>
-                                                                            <div class="mb-3"><label for="petugas_sore">Petugas Catat Sore</label><input class="form-control" id="petugas_sore" name="petugas_sore" type="text" value="<?php echo $data['petugas_sore']; ?>" required></div>
-
-                                                                        </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="submit" form="form<?php echo $data['id']; ?>" href="" class="btn btn-success">Simpan</button>
-                                                                    <button class="btn btn-primary" type="button" data-bs-dismiss="modal">Close</button>
-                                                                </div>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-
-                                                    <?php
-                                                    $no += 1;
-                                                }
-                                                    ?>
-                                                    </div>
-                                                </td>
+                                                
                                             </tr>
 
                                     </tbody>
@@ -252,9 +177,8 @@
                                                             <div class="mb-3"><label for="suhu_pagi">Suhu Pagi</label><input class="form-control" id="suhu_pagi" name="suhu_pagi" type="number" step="any" required></div>
                                                         </div>
                                                         <div class="col">
-                                                            <div class="mb-3"><label for="kelembapan_pagi">Kelembapan Pagi</label><input class="form-control" id="kelembapan_pagi" name="kelembapan_pagi" type="number" required></div>
+                                                            <div class="mb-3"><label for="kelembapan_pagi">Kelembapan Pagi</label><input class="form-control" id="kelembapan_pagi" name="kelembapan_pagi" type="number" step="any" required></div>
                                                         </div>
-                                                        <div class="mb-3"><label for="petugas_pagi">Petugas Catat Pagi</label><input class="form-control" id="petugas_pagi" name="petugas_pagi" type="text" required></div>
                                                     </div>
                                                     <!-- Sore -->
                                                     <div class="row ${1| ,row-cols-2,row-cols-3, auto,justify-content-md-center,|}">
@@ -262,9 +186,8 @@
                                                             <div class="mb-3"><label for="suhu_sore">Suhu Sore</label><input class="form-control" id="suhu_sore" name="suhu_sore" type="number" step="any"></div>
                                                         </div>
                                                         <div class="col">
-                                                            <div class="mb-3"><label for="kelembapan_sore">Kelembapan Sore</label><input class="form-control" id="kelembapan_sore" name="kelembapan_sore" type="number"></div>
+                                                            <div class="mb-3"><label for="kelembapan_sore">Kelembapan Sore</label><input class="form-control" id="kelembapan_sore" name="kelembapan_sore" type="number" step="any"></div>
                                                         </div>
-                                                        <div class="mb-3"><label for="petugas_sore">Petugas Catat Sore</label><input class="form-control" id="petugas_sore" name="petugas_sore" type="text"></div>
                                                     </div>
                                             </div>
                                             <div class="modal-footer">

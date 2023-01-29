@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = mysqli_query($koneksi, $sql);
         $data = mysqli_fetch_assoc($result);
         $num = mysqli_num_rows($result);
-        if ($data['shift'] == $shift && $num > 0) {
+        if ($data['shift'] == $shift && $num > 0)  {
             $query = mysqli_query($koneksi, "UPDATE `suhu` SET `ruangan` = '$ruangan', `suhu`='$suhu',`kelembapan` = '$kelembapan',`sensor`='$id',`shift` = '$shift' where `tanggal` = '$tanggal' and `shift` = '$shift'");
         } else {
             $query = mysqli_query($koneksi, "INSERT INTO `suhu` (`tanggal`, `ruangan`, `suhu`,`kelembapan`,`sensor`,`shift`) VALUES 

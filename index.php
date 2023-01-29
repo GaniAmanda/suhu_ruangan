@@ -186,7 +186,7 @@ function namabulan($m)
                 ?>
                 <div class="row">
                     <div class="col-sm-4 mb-4">
-                        <div class="card h-100">
+                        <div class="card h-100 lift lift-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="me-3">
@@ -203,7 +203,7 @@ function namabulan($m)
                         </div>
                     </div>
                     <div class="col-sm-4 mb-4">
-                        <div class="card h-100">
+                        <div class="card h-100 lift lift-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="me-3">
@@ -220,7 +220,7 @@ function namabulan($m)
                         </div>
                     </div>
                     <div class="col-sm-4 mb-4">
-                        <div class="card h-100">
+                        <div class="card h-100 lift lift-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="me-3">

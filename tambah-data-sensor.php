@@ -13,12 +13,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $suhu = $_POST['suhu'];
         $kelembapan = $_POST['kelembapan'];
         $shift = $_POST['shift'];
-        $sql = "Select * from suhu where tanggal='$tanggal' and shift = '$shift'";
+        $sql = "Select * from suhu where tanggal='$tanggal' and shift = '$shift' and sensor = '$id'";
         $result = mysqli_query($koneksi, $sql);
         $data = mysqli_fetch_assoc($result);
         $num = mysqli_num_rows($result);
         if ($data['shift'] == $shift && $num > 0)  {
-            $query = mysqli_query($koneksi, "UPDATE `suhu` SET `ruangan` = '$ruangan', `suhu`='$suhu',`kelembapan` = '$kelembapan',`sensor`='$id',`shift` = '$shift' where `tanggal` = '$tanggal' and `shift` = '$shift'");
+            $query = mysqli_query($koneksi, "UPDATE `suhu` SET `ruangan` = '$ruangan', `suhu`='$suhu',`kelembapan` = '$kelembapan',`sensor`='$id',`shift` = '$shift' where `sensor` = '$id' and `tanggal` = '$tanggal' and `shift` = '$shift'");
         } else {
             $query = mysqli_query($koneksi, "INSERT INTO `suhu` (`tanggal`, `ruangan`, `suhu`,`kelembapan`,`sensor`,`shift`) VALUES 
         ('$tanggal', '$ruangan','$suhu','$kelembapan','$id','$shift')");

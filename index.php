@@ -1,15 +1,21 @@
 <?php
 require 'cek-sesi.php';
 include 'koneksi.php';
-require 'cek_data.php';
 
 if (isset($_GET['cari'])) {
     $bulan = $_GET['bulan'];
+    $ruangan = $_GET['ruangan'];
+    $sensor = $_GET['sensor'];
+    //DUMP INISIAL DATA
+    require 'cek_data.php';
 } else {
     $bulan = date('m');
+    $ruangan = '1';
+    $sensor = '1';
 }
+require 'cek_data.php';
 //PAGI
-$sql_pagi = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND shift = 1 ORDER BY tanggal ASC;");
+$sql_pagi = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND ruangan = $ruangan AND sensor=$sensor AND shift = 1 ORDER BY tanggal ASC;");
 if (isset($sql_pagi)) {
     while ($row = $sql_pagi->fetch_assoc()) {
         $tgl_p[] = $row['tanggal'];
@@ -27,7 +33,7 @@ if (isset($sql_pagi)) {
     $sensor_pagi = str_replace(array('[', ']'), '', $json_sensor_p);
 }
 //SIANG
-$sql_siang = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND shift = 2 ORDER BY tanggal ASC;");
+$sql_siang = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND ruangan = $ruangan AND sensor=$sensor AND shift = 2 ORDER BY tanggal ASC;");
 if (isset($sql_siang)) {
     while ($row = $sql_siang->fetch_assoc()) {
         $tgl_s[] = $row['tanggal'];
@@ -46,7 +52,7 @@ if (isset($sql_siang)) {
 }
 
 //MALAM
-$sql_malam = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND shift = 3 ORDER BY tanggal ASC;");
+$sql_malam = mysqli_query($koneksi, "SELECT * FROM suhu LEFT JOIN sensor ON  suhu.sensor = sensor.id_sensor WHERE month(tanggal) = $bulan AND ruangan = $ruangan AND sensor=$sensor AND shift = 3 ORDER BY tanggal ASC;");
 if (isset($sql_malam)) {
     while ($row = $sql_malam->fetch_assoc()) {
         $tgl_m[] = $row['tanggal'];
@@ -135,9 +141,9 @@ function namabulan($m)
                                                 echo '<option value="9">September</option>';
                                             } elseif ($querynama['bulan'] == 10) {
                                                 echo '<option value="10">Oktober</option>';
-                                            } elseif ($querynama['bulan'] == 8) {
+                                            } elseif ($querynama['bulan'] == 11) {
                                                 echo '<option value="11">November</option>';
-                                            } else {
+                                            } elseif ($querynama['bulan'] == 12) {
                                                 echo '<option value="12">Desember</option>';
                                             }
                                         }
@@ -179,9 +185,9 @@ function namabulan($m)
             <!-- Main page content-->
             <div class="container-fluid px-4 mt-n10">
                 <?php
-                $sql_suhu_realtime = mysqli_query($koneksi, "SELECT suhu, DATE_FORMAT(modified_date, '%H:%i:%s') as last_update FROM `suhu` ORDER BY modified_date desc limit 1");
+                $sql_suhu_realtime = mysqli_query($koneksi, "SELECT suhu, DATE_FORMAT(modified_date, '%H:%i:%s') as last_update FROM `suhu` where sensor = $sensor ORDER BY modified_date desc limit 1");
                 $suhu_realtime = mysqli_fetch_assoc($sql_suhu_realtime);
-                $sql_kelembapan_realtime = mysqli_query($koneksi, "select kelembapan from suhu where tanggal = CURRENT_DATE ORDER BY modified_date desc limit 1");
+                $sql_kelembapan_realtime = mysqli_query($koneksi, "select kelembapan from suhu where tanggal = CURRENT_DATE  and sensor = $sensor ORDER BY modified_date desc limit 1");
                 $kelembapan_realtime = mysqli_fetch_assoc($sql_kelembapan_realtime);
                 ?>
                 <div class="row">
